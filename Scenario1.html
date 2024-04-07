@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master of Management Adventure Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            text-align: center;
+        }
+        .hidden {
+            display: none;
+        }
+        .choice-button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .scenario-img, .result-img {
+            width: 80%;
+            margin: 20px auto;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div id="gameContent">
+    <div id="scenarioContainer"></div>
+</div>
+
+<div id="resultsPage" class="hidden">
+    <img id="resultImg" class="result-img" src="" alt="Result Image">
+    <p id="resultText"></p>
+    <button onclick="nextScenario()">Next Scenario</button>
+</div>
+
+<script>
+let currentScenarioIndex = 0;
+let score = 0;
+
+const scenarios = [
+    // Previous Scenarios 1 to 3
+    // Scenario 4
+    {
+        question: "You're at the orientation and networking event for the Master of Management program. How do you proceed?",
+        image: "orientationEvent.webp", // Replace with your actual image path
+        choices: [
+            { text: "Show up only for food.", impact: 5, feedback: "Food was not good, you left disappointed but at least you showed up! +5 Marks", feedbackImg: "foodDisappointment.webp" }, // Replace with your actual image path
+            { text: "Collect as many LinkedIns as possible.", impact: 10, feedback: "You weren't able to make a strong impact... But at least you could reach out on Linkedin in the future! +10 Marks", feedbackImg: "linkedinAttempt.webp" }, // Replace with your actual image path
+            { text: "Make a meaningful connection.", impact: 20, feedback: "Your sincerity and interest paid off! One of these connections is open to referring you for your dream job! +20 Marks", feedbackImg: "successfulNetworking.webp" } // Replace with your actual image path
+        ]
+    },
+    // Scenario 2
+    {
+        question: "Participating in the MBA case competition.",
+        image: "caseCompetition.png", // Replace with your actual image path
+        choices: [
+            { text: "Do not participate.", impact: 5, feedback: "It might not be your cup of tea, but avoiding challenges won't help you grow. +5 Marks", feedbackImg: "noParticipation.jpg" }, // Replace with your actual image path
+            { text: "Try it out.", impact: 20, feedback: "You ended up placing 2nd out of all the teams! Turns out you enjoy these case competitions... +20 Marks", feedbackImg: "caseSuccess.jpg" }, // Replace with your actual image path
+            { text: "Participate because your friends are.", impact: 10, feedback: "You make it to finals! They loved your creative ideas, and you gained a useful experience to add to your resume. +10 Marks", feedbackImg: "friendInfluence.jpg" } // Replace with your actual image path
+        ]
+    },
+    // Scenario 3
+    {
+        question: "Finance class in Q2 is coming up, and your friends want to hang out.",
+        image: "financeClassPrep.jpg", // Replace with your actual image path
+        choices: [
+            { text: "Tell them you're busy with prep.", impact: 20, feedback: "You did great in Peggy's class, and your friends understand you're in an accelerated masters program so they rescheduled to reading week. +20 Marks", feedbackImg: "studySuccess.jpg" }, // Replace with your actual image path
+            { text: "Hang out with friends and do readings in class.", impact: 10, feedback: "Peggy yells at you for not paying attention in class... but you still did well on the quiz! +10 Marks", feedbackImg: "riskyChoice.jpg" }, // Replace with your actual image path
+            { text: "Hang out with friends and postpone readings.", impact: 5, feedback: "Surprise! Peggy gave out an unexpected pop quiz. You failed... +5 Marks", feedbackImg: "quizFailure.Webp" } // Replace with your actual image path
+        ]
+    },
+    {
+        question: "You are invited to a 'Winter Social' hosted by the ambassadors for the MMgmt students at Canadian Brewhouse.",
+        image: "winterSocial.webp", // Add your image path
+        choices: [
+            { text: "Attend the event to have fun.", impact: 10, feedback: "You had a great time, and manage to pull through with a decent score on your test! +10 Marks", feedbackImg: "funNight.webp" }, // Add your image path
+            { text: "Attend the event but leave early to prepare for the quiz.", impact: 20, feedback: "You were able to strengthen your connections within the class, and you aced the test! +20 Marks", feedbackImg: "earlyDeparture.webp" }, // Add your image path
+            { text: "Skip the event as you don't like social gatherings.", impact: 5, feedback: "It's getting difficult to make friends in the class... You struggle with concepts, but have no one to ask for help... +5 Marks", feedbackImg: "isolation.webp" } // Add your image path
+        ]
+    },
+    // Scenario 5
+    {
+        question: "There's an essential catalyst session scheduled on how to enhance your resume.",
+        image: "catalystSession.jpg", // Add your image path
+        choices: [
+            { text: "Attend the session for attendance and work on something else.", impact: 10, feedback: "You manage to submit your assignment on time, but unfortunately, while focusing on your task, you miss out on crucial insights and tips provided during the session. As a result, your resume doesn't benefit from the valuable information shared. +10 Marks", feedbackImg: "missedOpportunity.jpg" }, // Add your image path
+            { text: "Choose not to attend the session.", impact: 5, feedback: "By skipping the session, you miss out on vital lessons that could have significantly improved the quality of your resume. Consequently, your resume remains below the standard expected in a business context. +5 Marks", feedbackImg: "sessionSkip.jpg" }, // Add your image path
+            { text: "Actively participate in the session.", impact: 20, feedback: "Congratulations! By attending the session and diligently comparing your existing resume with the insights shared, you are able to refine and perfect your resume to meet the standards expected in a business school environment. Your resume now shines with professionalism and relevance, greatly enhancing your prospects in the job market. +20 Marks", feedbackImg: "resumeSuccess.jpeg" } // Add your image path
+        ]
+    }
+];
+
+function displayScenario() {
+    const scenario = scenarios[currentScenarioIndex];
+    const scenarioContainer = document.getElementById('scenarioContainer');
+    scenarioContainer.innerHTML = `<h2>${scenario.question}</h2>
+        <img class="scenario-img" src="${scenario.image}" alt="Scenario Image">
+        ${scenario.choices.map((choice) => `<button class="choice-button" onclick="chooseOption(${choice.impact}, '${choice.feedback.replace(/'/g, "\\'")}', '${choice.feedbackImg}')">${choice.text}</button>`).join('')}`;
+
+    document.getElementById('gameContent').classList.remove('hidden');
+    document.getElementById('resultsPage').classList.add('hidden');
+}
+
+function chooseOption(impact, feedback, feedbackImg) {
+    score += impact;
+    document.getElementById('resultText').innerText = feedback;
+    document.getElementById('resultImg').src = feedbackImg;
+    document.getElementById('gameContent').classList.add('hidden');
+    document.getElementById('resultsPage').classList.remove('hidden');
+}
+
+function nextScenario() {
+    currentScenarioIndex++;
+    if (currentScenarioIndex < scenarios.length) {
+        displayScenario();
+    } else {
+        endGame();
+    }
+}
+
+function endGame() {
+    let finalMessage = `Game Over. You scored ${score} out of 100. `;
+    let imageName = ""; // Initialize an empty image name variable
+
+    if (score >= 95) {
+        finalMessage += "Congratulations! You've graduated with an A+.";
+        imageName = "graduationA+.webp"; // Image name for A+ grade
+    } else if (score >= 90) {
+        finalMessage += "Great job! You've graduated with an A.";
+        imageName = "graduationA+.webp"; // Image name for A grade
+    } else if (score >= 85) {
+        finalMessage += "Well done! You've graduated with an A-.";
+        imageName = "graduationA+.webp"; // Image name for A- grade
+    } else if (score >= 80) {
+        finalMessage += "Good effort! You've graduated with a B+.";
+        imageName = "graduationA+.webp"; // Image name for B+ grade
+    } else if (score >= 75) {
+        finalMessage += "You've graduated with a B.";
+        imageName = "graduationA+.webp"; // Image name for B grade
+    } else if (score >= 70) {
+        finalMessage += "You've graduated with a B-.";
+        imageName = "graduationA+.webp"; // Image name for B- grade
+    } else {
+        finalMessage += "Unfortunately, you did not graduate. Better luck next time!";
+        imageName = "graduationFail.webp"; // Image name for failing
+    }
+
+    // Append the image tag to the finalMessage
+    finalMessage += `<img src="${imageName}" alt="Game Result" style="width:100%;max-width:600px;margin-top:20px;">`;
+
+    document.getElementById("resultsPage").classList.add("hidden");
+    document.getElementById("scenarioContainer").innerHTML = finalMessage;
+    document.getElementById("gameContent").classList.remove('hidden');
+}
+
+
+// Initialize the game
+displayScenario();
+
+</script>
+</body>
+</html>
